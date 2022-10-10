@@ -5,11 +5,37 @@ const execShPromise = require("exec-sh").promise;
 let fs = require("fs");
 
 const projects = [
-  { name: "MISW4104_202215_Equipo01" },
-  { name: "MISW4104_202215_Equipo02" },
-  { name: "MISW4104_202215_Equipo03" },
-  { name: "MISW4104_202215_Equipo04" },
-  { name: "MISW4104_202215_Equipo05" },
+  { name: "MISW4104_202215_Equipo06" },
+  { name: "MISW4104_202215_Equipo07" },
+  { name: "MISW4104_202215_Equipo08" },
+  { name: "MISW4104_202215_Equipo09" },
+  { name: "MISW4104_202215_Equipo10" },
+  { name: "MISW4104_202215_Equipo11" },
+  { name: "MISW4104_202215_Equipo12" },
+  { name: "MISW4104_202215_Equipo13" },
+  { name: "MISW4104_202215_Equipo14" },
+  { name: "MISW4104_202215_Equipo15" },
+  { name: "MISW4104_202215_Equipo16" },
+  { name: "MISW4104_202215_Equipo17" },
+  { name: "MISW4104_202215_Equipo18" },
+  { name: "MISW4104_202215_Equipo19" },
+  { name: "MISW4104_202215_Equipo20" },
+  { name: "MISW4104_202215_Equipo21" },
+  { name: "MISW4104_202215_Equipo22" },
+  { name: "MISW4104_202215_Equipo23" },
+  { name: "MISW4104_202215_Equipo24" },
+  { name: "MISW4104_202215_Equipo25" },
+  { name: "MISW4104_202215_Equipo26" },
+  { name: "MISW4104_202215_Equipo27" },
+  { name: "MISW4104_202215_Equipo28" },
+  { name: "MISW4104_202215_Equipo29" },
+  { name: "MISW4104_202215_Equipo30" },
+  { name: "MISW4104_202215_Equipo31" },
+  { name: "MISW4104_202215_Equipo32" },
+  { name: "MISW4104_202215_Equipo33" },
+  { name: "MISW4104_202215_Equipo34" },
+  { name: "MISW4104_202215_Equipo35" },
+  { name: "MISW4104_202215_Equipo36" },
 ];
 
 const config = {
@@ -53,8 +79,9 @@ createRepos();
 
 function getReadmeFile(repo) {
   const content = `# Enlaces
-    - [Jenkins](http://157.253.238.75:8080/${config.jenkinsServer}/)
-    - [Sonar](http://157.253.238.75:8080/${config.sonarServer}/)`;
+  - [Jenkins](http://157.253.238.75:8080/${config.jenkinsServer}/)
+  - [Sonar](http://157.253.238.75:8080/${config.sonarServer}/)`;
+
   return content;
 }
 
@@ -85,7 +112,7 @@ function getJenkinsFile(repo) {
     stages {
        stage('Checkout') {
           steps {
-             scmSkip(deleteBuild: true, skipPattern:'.*\\[ci-skip\\].*')
+             scmSkip(deleteBuild: true, skipPattern:'.*\\\\[ci-skip\\\\].*')
 
              git branch: 'master',
                 credentialsId: env.GIT_CREDENTIAL_ID,
