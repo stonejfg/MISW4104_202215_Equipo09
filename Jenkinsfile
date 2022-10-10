@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-       GIT_REPO = 'MISW4104_202215_Equipo01'
+       GIT_REPO = 'MISW4104_202215_Equipo02'
        GIT_CREDENTIAL_ID = '277a9d46-cf19-4119-afd9-4054a7d35151'
        SONARQUBE_URL = 'jenkins-misovirtual'
     }
