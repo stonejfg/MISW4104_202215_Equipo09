@@ -1,66 +1,43 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-var-requires */
 const execShPromise = require("exec-sh").promise;
 
 let fs = require("fs");
 
 const projects = [
-  { name: "202212_Equipo01" },
-  { name: "202212_Equipo02" },
-  { name: "202212_Equipo03" },
-  { name: "202212_Equipo04" },
-  { name: "202212_Equipo05" },
-  { name: "202212_Equipo06" },
-  { name: "202212_Equipo07" },
-  { name: "202212_Equipo08" },
-  { name: "202212_Equipo09" },
-  { name: "202212_Equipo10" },
-  { name: "202212_Equipo11" },
-  { name: "202212_Equipo12" },
-  { name: "202212_Equipo13" },
-  { name: "202212_Equipo14" },
-  { name: "202212_Equipo15" },
-  { name: "202212_Equipo16" },
-  { name: "202212_Equipo17" },
-  { name: "202212_Equipo18" },
-  { name: "202212_Equipo19" },
-  { name: "202212_Equipo20" },
-  { name: "202212_Equipo21" },
-  { name: "202212_Equipo22" },
-  { name: "202212_Equipo23" },
-  { name: "202212_Equipo24" },
-  { name: "202212_Equipo25" },
-  { name: "202212_Equipo26" },
-  { name: "202212_Equipo27" },
-  { name: "202212_Equipo28" },
-  { name: "202212_Equipo29" },
-  { name: "202212_Equipo30" },
-  // { name: "202212_Equipo31" },
-  // { name: "202212_Equipo32" },
-  // { name: "202212_Equipo33" },
-  // { name: "202212_Equipo34" },
-  // { name: "202212_Equipo35" },
-  // { name: "202212_Equipo36" },
-  // { name: "202212_Equipo37" },
-  // { name: "202212_Equipo38" },
-  // { name: "202212_Equipo39" },
-  // { name: "202212_Equipo40" },
+  { name: "MISW4104_202215_Equipo01" },
+  { name: "MISW4104_202215_Equipo02" },
+  { name: "MISW4104_202215_Equipo03" },
+  { name: "MISW4104_202215_Equipo04" },
+  { name: "MISW4104_202215_Equipo05" },
 ];
 
-const updateRepos = async () => {
+const config = {
+  organization: "MISW-4104-Web",
+  gitKey: "277a9d46-cf19-4119-afd9-4054a7d35151",
+  sonarServer: "sonar-misovirtual",
+  jenkinsServer: "jenkins-misovirtual",
+};
+
+const createRepos = async () => {
   let out;
   try {
     for (const project of projects) {
       const jenkinsFile = getJenkinsFile(project.name);
       const sonarFile = getSonarFile(project.name);
+      const readmeFile = getReadmeFile(project.name);
 
       fs.writeFileSync("Jenkinsfile", jenkinsFile);
       fs.writeFileSync("sonar-project.properties", sonarFile);
+      fs.writeFileSync("README.md", readmeFile);
 
       let command1 = `git remote rm origin &&
-        git remote add origin git@github.com:MISW-4104-Web/${project.name}.git &&
+        hub create ${config.organization}/${project.name}
         git add . &&
         git commit -m "Update Jenkinsfile" &&
-        git fetch origin master &&
-        git merge -s recursive -X ours origin/master`;
+        git push origin master`;
+
+      console.log("Creating repo: ", project.name);
       out = await execShPromise(command1, true);
     }
   } catch (e) {
@@ -69,14 +46,20 @@ const updateRepos = async () => {
     console.log("Stdout: ", e.stdout);
     return e;
   }
-
   console.log("out: ", out.stdout, out.stderr);
 };
 
-updateRepos();
+createRepos();
+
+function getReadmeFile(repo) {
+  const content = `# Enlaces
+    - [Jenkins](http://157.253.238.75:8080/${config.jenkinsServer}/)
+    - [Sonar](http://157.253.238.75:8080/${config.sonarServer}/)`;
+  return content;
+}
 
 function getSonarFile(repo) {
-  const content = `sonar.host.url=http://157.253.238.75:8080/sonar-misovirtual/
+  const content = `sonar.host.url=http://157.253.238.75:8080/${config.sonarServer}/
   sonar.projectKey=${repo}:sonar
   sonar.projectName=${repo}
   sonar.projectVersion=1.0
@@ -87,6 +70,7 @@ function getSonarFile(repo) {
   sonar.ts.tslint.configPath=tslint.json
   sonar.javascript.lcov.reportPaths=coverage/front/lcov.info
   sonar.testExecutionReportPaths=reports/ut_report.xml`;
+
   return content;
 }
 
@@ -95,18 +79,17 @@ function getJenkinsFile(repo) {
     agent any
     environment {
        GIT_REPO = '${repo}'
-       GIT_CREDENTIAL_ID = '277a9d46-cf19-4119-afd9-4054a7d35151'
-       SONARQUBE_URL = 'http://172.24.100.52:8082/sonar-misovirtual'
+       GIT_CREDENTIAL_ID = '${config.gitKey}'
+       SONARQUBE_URL = '${config.jenkinsServer}'
     }
     stages {
        stage('Checkout') {
           steps {
-             scmSkip(deleteBuild: true, skipPattern:'.*\\\\[ci-skip\\\\].*')
-
+             scmSkip(deleteBuild: true, skipPattern:'.*\\[ci-skip\\].*')
 
              git branch: 'master',
                 credentialsId: env.GIT_CREDENTIAL_ID,
-                url: 'https://github.com/MISW-4104-Web/' + env.GIT_REPO
+                url: 'https://github.com/${config.organization}/' + env.GIT_REPO
           }
        }
        stage('Git Analysis') {
@@ -126,8 +109,8 @@ function getJenkinsFile(repo) {
                 sh('git config --global user.name "ci-isis2603"')
                 sh('git add ./reports/index.html')
                 sh('git commit -m "[ci-skip] GitInspector report added"')
-                sh('git pull https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/MISW-4104-Web/\${GIT_REPO} master')
-                sh('git push https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/MISW-4104-Web/\${GIT_REPO} master')
+                sh('git pull https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/${config.organization}/\${GIT_REPO} master')
+                sh('git push https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/${config.organization}/\${GIT_REPO} master')
              }
           }
        }
@@ -137,6 +120,7 @@ function getJenkinsFile(repo) {
              script {
                 docker.image('citools-isis2603:latest').inside('-u root') {
                    sh '''
+                      CYPRESS_INSTALL_BINARY=0 npm install
                       npm i -s
                       npm i typescript@4.6.2
                       ng build

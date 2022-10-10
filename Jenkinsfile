@@ -1,15 +1,14 @@
 pipeline {
     agent any
     environment {
-       GIT_REPO = '202212_Equipo30'
+       GIT_REPO = 'MISW4104_202215_Equipo01'
        GIT_CREDENTIAL_ID = '277a9d46-cf19-4119-afd9-4054a7d35151'
-       SONARQUBE_URL = 'http://172.24.100.52:8082/sonar-misovirtual'
+       SONARQUBE_URL = 'jenkins-misovirtual'
     }
     stages {
        stage('Checkout') {
           steps {
-             scmSkip(deleteBuild: true, skipPattern:'.*\\[ci-skip\\].*')
-
+             scmSkip(deleteBuild: true, skipPattern:'.*\[ci-skip\].*')
 
              git branch: 'master',
                 credentialsId: env.GIT_CREDENTIAL_ID,
